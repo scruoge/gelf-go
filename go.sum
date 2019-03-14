@@ -1,0 +1,6 @@
+github.com/duythinht/gelf v0.0.0-20161226064245-5551c01bebbc h1:jXbAN2OmKiATTuN/vlwvLYJKQEFQpf3RREWZ3Gk1PW8=
+github.com/duythinht/gelf v0.0.0-20161226064245-5551c01bebbc/go.mod h1:RawFO6rT4zX8s2GlhBdVyfURngzgUfXERxkrkvvMRWs=
+github.com/kavu/go_reuseport v1.4.0 h1:YIp/96RZ3sJfn0LN+FFkkXIq3H3dfVOdRUtNejhDcxc=
+github.com/kavu/go_reuseport v1.4.0/go.mod h1:CG8Ee7ceMFSMnx/xr25Vm0qXaj2Z4i5PWoUx+JZ5/CU=
+gopkg.in/Graylog2/go-gelf.v2 v2.0.0-20180326133423-4dbb9d721348 h1:7iDABQS+Bae9EV/FZLAhs9tlbntNnDXyhzvqD4ETNZQ=
+gopkg.in/Graylog2/go-gelf.v2 v2.0.0-20180326133423-4dbb9d721348/go.mod h1:CeDeqW4tj9FrgZXF/dQCWZrBdcZWWBenhJtxLH4On2g=

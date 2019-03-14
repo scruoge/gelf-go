@@ -4,35 +4,32 @@ import (
 	"bytes"
 	"compress/gzip"
 	"compress/zlib"
-	"fmt"
 	"io"
+	"log"
 )
 
-func check(testBytes []byte) []byte {
-
-	b := bytes.NewBufferString(string(testBytes))
-	var r io.ReadCloser
-	var err interface{} = nil
-	out := new(bytes.Buffer)
-
+func detectMessageType(testBytes []byte) []byte {
+	var readCloser io.ReadCloser
+	var err error
 	if testBytes[0] == 0x1f && testBytes[1] == 0x8b {
-		r, err = gzip.NewReader(b)
+		readCloser, err = gzip.NewReader(bytes.NewBuffer(testBytes))
 	} else if testBytes[0] == 0x78 && testBytes[1] == 0x9c {
-		r, err = zlib.NewReader(b)
+		readCloser, err = zlib.NewReader(bytes.NewBuffer(testBytes))
 	} else if testBytes[0] == 0x1e && testBytes[1] == 0x0f { // gelf chunk
 		return []byte{0xef}
 	} else {
+		log.Println("Warn: MessageType unknown")
 		return []byte{}
 	}
-
 	if err != nil {
-		fmt.Println("Error: ", err)
+		log.Println("Error: ", err)
 		return []byte{}
 	}
-	defer r.Close()
-
-	out.ReadFrom(r)
-
+	defer readCloser.Close()
+	out := &bytes.Buffer{}
+	if _, err := out.ReadFrom(readCloser); err != nil {
+		log.Println("Error: ", err)
+		return []byte{}
+	}
 	return out.Bytes()
-
 }

@@ -7,8 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"fmt"
-
 	"github.com/duythinht/gelf"
 	"github.com/duythinht/gelf/chunk"
 )
@@ -26,7 +24,7 @@ var tests = []Test{
 
 func TestCheck(t *testing.T) {
 	for _, test := range tests {
-		var out = string(check(test.in))
+		var out = string(detectMessageType(test.in))
 		if out != test.out {
 			t.Error("unexpexted: " + out)
 		}
@@ -35,19 +33,22 @@ func TestCheck(t *testing.T) {
 
 func TestError(t *testing.T) {
 	expected := []byte{0x1f, 0x8b}
-	check(expected)
+	detectMessageType(expected)
 }
 
-func TestChunked(t *testing.T) {
+func BenchmarkChunked(b *testing.B) {
 	expected := []byte{0xef}
 	var buffers = makeGelfChunked("some msg")
-	for _, chunked := range buffers {
-		out := check(chunked)
-		if bytes.Compare(out, expected) != 0 {
-			t.Error("unexpexted: " + string(out))
+	for n := 0; n < b.N; n++ {
+		for _, chunked := range buffers {
+			out := detectMessageType(chunked)
+			if bytes.Compare(out, expected) != 0 {
+				b.Error("unexpexted: " + string(out))
+			}
 		}
 	}
 }
+
 func makeGelfChunked(input string) [][]byte {
 	message := gelf.Create(input).
 		SetTimestamp(time.Now().Unix()).
@@ -56,9 +57,9 @@ func makeGelfChunked(input string) [][]byte {
 		SetHost("chat Server").
 		ToJSON()
 	ZippedMessage := chunk.ZipMessage(message)
-	var MaxChunkSize int = 50
+	var MaxChunkSize = 50
 	var buffers [][]byte
-	fmt.Println(len(ZippedMessage))
+	//fmt.Println(len(ZippedMessage))
 	if len(ZippedMessage) > MaxChunkSize {
 		buffers = chunk.GetGelfChunks(ZippedMessage, MaxChunkSize)
 	}
@@ -79,4 +80,24 @@ func makeZlibMsg(input string) []byte {
 	w.Write([]byte(input))
 	w.Close()
 	return b.Bytes()
+}
+
+func benchmarkCheck(i int, b *testing.B) {
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		var out = string(detectMessageType(tests[i].in))
+		if out != tests[i].out {
+			b.Error("unexpexted: " + out)
+		}
+	}
+}
+
+func BenchmarkCase0(b *testing.B)  {
+	benchmarkCheck(0, b )
+}
+func BenchmarkCase1(b *testing.B)  {
+	benchmarkCheck(1, b )
+}
+func BenchmarkCase2(b *testing.B)  {
+	benchmarkCheck(2, b )
 }
